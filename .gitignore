@@ -1,0 +1,7 @@
+*.pyc 
+venv/ 
+*.xlsx
+IndProVenv/ 
+ML Methods Compare (tilNov11Train).png
+IndProVenv/
+*.DS_Store
