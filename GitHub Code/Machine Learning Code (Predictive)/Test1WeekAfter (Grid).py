@@ -1,8 +1,13 @@
+# Import standard packages
 import matplotlib.pyplot as plt
 import pandas as pd
-from operator import indexOf
 import numpy as np
 from datetime import datetime, timedelta
+
+# Import ML packages
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.svm import SVR
 
 data_path = [
     '/Users/kyhi2018/Desktop/Individual Project/Pre-processed ML data/Term 1/Main Library Pre-processed.xlsx', # Main Library (Term 1)
@@ -36,12 +41,6 @@ term_names = [
     'Term 1',
     'Term 2'
 ]
-
-# Import ML packages
-from sklearn.linear_model import LinearRegression
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.svm import SVR
-from sklearn.model_selection import train_test_split
 
 train_dates = [
     [10,2],
