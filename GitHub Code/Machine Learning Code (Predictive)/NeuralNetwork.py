@@ -139,7 +139,7 @@ if __name__ == '__main__':
     prediction = prediction.detach().numpy()
     y_test = y_test.detach().numpy()
     plt.scatter(prediction, y_test)
-    #plt.show()
+    plt.show()
     
     print('Finished')
     
