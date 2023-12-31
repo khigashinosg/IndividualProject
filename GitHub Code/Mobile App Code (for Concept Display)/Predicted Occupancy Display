@@ -1,0 +1,145 @@
+import matplotlib.pyplot as plt
+import pandas as pd
+from operator import indexOf
+import numpy as np
+from datetime import datetime, timedelta
+import matplotlib.dates as mdates
+
+data_path = [
+    '/Users/kyhi2018/Desktop/Individual Project/Pre-processed ML data/Term 1/Main Library Pre-processed.xlsx', # Main Library (Term 1)
+    '/Users/kyhi2018/Desktop/Individual Project/Pre-processed ML data/Term 1/Student Centre Pre-processed.xlsx', # Student Centre (Term 1)
+    '/Users/kyhi2018/Desktop/Individual Project/Pre-processed ML data/Term 1/Science Library Pre-processed.xlsx', # Science Library (Term 1)
+    '/Users/kyhi2018/Desktop/Individual Project/Pre-processed ML data/Term 2/Main Library Pre-processed.xlsx', # Main Library (Term 2)
+    '/Users/kyhi2018/Desktop/Individual Project/Pre-processed ML data/Term 2/Student Centre Pre-processed.xlsx', # Student Centre (Term 2)
+    '/Users/kyhi2018/Desktop/Individual Project/Pre-processed ML data/Term 2/Science Library Pre-processed.xlsx', # Science Library (Term 2)
+    ]
+
+area_names = [ # for naming plot figures
+    'Main Library',
+    'Student Centre',
+    'Science Library',
+    'Main Library',
+    'Student Centre',
+    'Science Library',
+]
+method_names = [ # for naming plot figures
+    'MLR',
+    'RF',
+    'SVR'
+]
+method_colours = [ # for colouring plot figures by regression method used
+    '#8B0000',
+    '#1f77b4',
+    '#006400'
+]
+
+# Import ML packages
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.svm import SVR
+from sklearn.model_selection import train_test_split
+
+train_dates = [
+    [10,2],
+    [10,9],
+    [10,16],
+    [10,23],
+    [10,30],
+    [11,6],
+    [11,13],
+    [11,20],
+    [11,27],
+    [12,4],
+    [12,11],
+    [12,16]
+]
+
+fs = 12         # fontsize
+figsizex = 8.2  # figure width
+figsizey = 11.6  # figure length
+dotsize = 1.5     # dot size for scatterplots
+
+time_select = ['2023-01-16','2023-01-20']
+
+for area_select in [0]: # 0 = ML, 1 = SC, 2 = SL 
+
+    testset_y = []
+    predicted_y = []
+    testset_y_t2 = []
+    predicted_y_t2 = []
+
+    for train_select in [11]:
+        data = pd.read_excel(data_path[area_select])
+        data_t2 = pd.read_excel(data_path[area_select+3]) # +3 selects the term 2 equivalent
+        train_end = datetime(2022,train_dates[train_select][0],train_dates[train_select][1]) # change date to end of training period
+        test_start = train_end + timedelta(days=1) # test period is 1 day after train period ends
+        for method_select in [1]: # 0 = Multiple Regression, 1 = Random Forest, 2 = Support Vector Regression
+            
+            # Split the dataset into training and testing sets
+            x_train = data.set_index('Occurrence Time')[:train_end.date()].iloc[:,1:-2]
+            x_test = data.set_index('Occurrence Time')[test_start.date():].iloc[:,1:-2]
+            y_train = data.set_index('Occurrence Time')[:train_end.date()].iloc[:,0]
+            y_test = data.set_index('Occurrence Time')[test_start.date():].iloc[:,0]
+            x_t2 = data_t2.set_index('Occurrence Time')[time_select[0]:time_select[1]].iloc[:,1:-2]
+            y_t2 = data_t2.iloc[:,1]
+
+            # Initialize the regressor according to selected method
+            if method_select == 0:
+                regressor = LinearRegression()
+            elif method_select == 1:
+                regressor = RandomForestRegressor(n_estimators=100, random_state=0)
+            elif method_select == 2:
+                regressor = SVR(kernel='rbf')
+
+            # Fit the model on the training data (all T1 data)
+            regressor.fit(x_train, y_train)
+
+            # Predict the target variable on the testing data
+            y_pred_t2 = regressor.predict(x_t2)
+
+timeframe = x_t2.reset_index()
+x = timeframe.iloc[:,0]
+#plt.plot(x,y_t2,linewidth=2)
+fig, ax = plt.subplots()
+fig.set_size_inches(4, 3)
+ax.plot(x,y_pred_t2,linewidth = 3)
+ax.grid(True)
+ax.set_xlabel('Day-Month',fontsize=fs)
+ax.set_ylabel('Occupancy',fontsize=fs)
+ax.xaxis.set_major_formatter(mdates.DateFormatter('%d-%m'))
+locator = mdates.DayLocator(interval=2)
+ax.xaxis.set_major_locator(locator)
+plt.savefig(f'/Users/kyhi2018/Desktop/Individual Project/Python Plots/Mobile App/{area_names[area_select]}(Predict).png',bbox_inches='tight',dpi=150)
+
+# Average occupancy by day within timeframe
+day_names = [ # Naming conventions for days of the week (Monday must be first, etc)
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday'
+    ]
+day_data = {} # sorts all data by day of the week 
+day_avg = {} # average occupancy by day (per hour)
+
+timeframe['Counter'] = np.array(y_pred_t2)
+for i in day_names:
+    day_data[i] = timeframe[timeframe['Occurrence Time'].dt.weekday == indexOf(day_names,i)]
+    day_avg[i] = day_data[i].groupby(day_data[i]['Occurrence Time'].dt.hour)['Counter'].mean()
+    
+# Plotting
+plt.figure(figsize=(4,3))
+for i in [0,1,2,3,4,5,6]: # input specific days via their respective number (Mon = 1, etc)
+    if day_avg[day_names[i]].notnull().any():
+        day_avg[day_names[i]].plot(kind='line',x=None,y='time',use_index=True,label = f'{day_names[i]}') 
+plt.xlabel('Time (24 hr)',fontsize=fs)
+plt.ylabel('Occupancy',fontsize=fs)
+plt.legend(fontsize=fs-2)
+plt.grid(True)
+#plt.show()
+if area_select in [0,1,2]:
+    plt.savefig(f'/Users/kyhi2018/Desktop/Individual Project/Python Plots/Mobile App/{area_names[area_select]} Daily Averages (predict).png',bbox_inches='tight', dpi=200)
+    #day_data.to_excel(f'/Users/kyhi2018/Desktop/Individual Project/Daily Averages Data/Term 1/{area_names[area_select]} Day Data.xlsx', index=False)
+plt.close()
