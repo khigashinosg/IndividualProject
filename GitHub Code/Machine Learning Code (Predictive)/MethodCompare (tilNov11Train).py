@@ -8,6 +8,8 @@ from datetime import datetime, timedelta
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
+from sklearn.metrics import r2_score, mean_squared_error
+from sklearn.preprocessing import MinMaxScaler
 
 # Establish data import paths
 data_path = [
@@ -91,11 +93,6 @@ for area_select in [0,1,2]: # 0 = ML, 1 = SC, 2 = SL
 
             # Predict the target variable on the testing data
             y_pred = regressor.predict(x_test)
-
-            # Evaluate the model performance
-            from sklearn.metrics import r2_score
-            from sklearn.metrics import mean_squared_error
-            from sklearn.preprocessing import MinMaxScaler
 
             # Create an instance of MinMaxScaler
             scaler = MinMaxScaler()
