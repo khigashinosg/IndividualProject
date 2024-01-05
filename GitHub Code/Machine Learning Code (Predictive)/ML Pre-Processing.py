@@ -1,7 +1,5 @@
 import matplotlib.pyplot as plt
 import pandas as pd
-from operator import indexOf
-import numpy as np
 
 data_path = [
     '/Users/kyhi2018/Desktop/Individual Project/Final Occupancy Data/Term 1/Main Library (Term 1) (Occupancy).xlsx', # Main Library (Term 1)
@@ -57,7 +55,7 @@ for area_select in [0,1,2,3,4,5]:  # this loops code for specific datasets accor
     b_data_10min[feature_names[5]] = ob1_data.resample('10T').mean().ffill() # other building 1's occupancy
     b_data_10min[feature_names[6]] = ob2_data.resample('10T').mean().ffill() # other building 2's occupancy
     b_data_10min.reset_index(inplace=True) # use numeric index for the following calculations
-    b_data_10min[feature_names[0]] = b_data_10min[b_data_10min.columns[0]].dt.minute/10 + b_data_10min[b_data_10min.columns[0]].dt.hour*6
+    b_data_10min[feature_names[0]] = b_data_10min[b_data_10min.columns[0]].dt.minute/10 + b_data_10min[b_data_10min.columns[0]].dt.hour * 6
     b_data_10min[feature_names[1]] = b_data_10min[b_data_10min.columns[0]].dt.weekday
     if area_select in [0,1,2]:
         b_data_10min[feature_names[2]] = b_data_10min[b_data_10min.columns[0]].dt.week - 39 # Offset to count Induction Week as Week 0

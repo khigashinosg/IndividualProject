@@ -112,34 +112,38 @@ figsizey = 8.2  # figure length
 dotsize = 1.5     # dot size for scatterplots
 train_select = 0  # 0 to 4
 
-n = 0 # counts how many loops the subplot function has been through
+n = 0 # counts how many loops the subplot function has been through for naming 
 fig, axs = plt.subplots(nrows=3, ncols=3, figsize=(figsizex,figsizey)) # establish subplot grid
 for i in [0,1,2]: # loop through the areas
     for j in [0,1,2]: # loop through the regression methods
-        axs[i,j].scatter(testset_y[n], predicted_y[n],s=dotsize,c=method_colours[j]) # plot true vs predicted occupancy
-        axs[i,j].plot([0,1],[0,1],c='red',label = 'Line of perfect\nprediction') # plot line of perfect prediction
+        
+        # Plot data
+        axs[i,j].scatter(testset_y[n], predicted_y[n],s=dotsize,c=method_colours[j]) # true vs predicted occupancy
+        axs[i,j].plot([0,1],[0,1],c='red',label = 'Line of perfect\nprediction')     # plot line of perfect prediction
+        
+        # Label and cusotmise graph
         axs[i,j].tick_params(axis='y', labelright=True, labelleft=False, left= False, right=True)
-        axs[i,j].text(0.98, 0.29, f'R^2: {round(r2_score(testset_y[n], predicted_y[n]),3)}', ha='right', \
-            va='center', fontsize=8, fontweight='bold')
-        axs[i,j].text(0.98, 0.22, f'RSME: {round(np.sqrt(mean_squared_error(testset_y[n], predicted_y[n])),3)}', \
-            ha='right', va='center', fontsize=8, fontweight='bold')
         axs[0,j].set_title(f"{method_names[j]}", fontweight='bold', loc='center', fontsize=14,color=method_colours[j])
         axs[i,j].legend(loc='lower right',fontsize=8)
         axs[i,j].grid(True)
+       
+        # Add bonus text showing regression stats
+        axs[i,j].text(0.98, 0.29, f'R^2: {round(r2_score(testset_y[n], predicted_y[n]),3)}', ha='right', va='center', fontsize=8, fontweight='bold')
+        axs[i,j].text(0.98, 0.22, f'RSME: {round(np.sqrt(mean_squared_error(testset_y[n], predicted_y[n])),3)}', ha='right', va='center', fontsize=8, fontweight='bold')
+
+        # Update area tracker
         n = n + 1
 
-# Set area labels
+# Set area labels for overall figure
 fig.text(0.085, 0.77, 'Main Library', va='center', rotation='vertical', fontweight='bold', fontsize=14)
 fig.text(0.085, 0.497, 'Student Centre', va='center', rotation='vertical', fontweight='bold', fontsize=14)
 fig.text(0.085, 0.22, 'Science Library', va='center', rotation='vertical', fontweight='bold', fontsize=14)
 
-# Set axis labels
+# Set axis labels for overall figure
 fig.text(0.5, 0.065, 'True Occupancy (Normalised)', ha='center', fontsize=fs)
 fig.text(0.95, 0.5, 'Predicted Occupancy (Normalised)', va='center', rotation='vertical',fontsize=fs)
 
 # Save figure
 plt.savefig(f'/Users/kyhi2018/Desktop/IndividualProject/ML Methods Compare (tilNov11Train).png',bbox_inches='tight',dpi=200)
 fig.clf()
-
-print('finished')
 
