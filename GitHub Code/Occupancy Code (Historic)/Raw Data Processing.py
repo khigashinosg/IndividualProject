@@ -29,7 +29,7 @@ weekends = [5, 6]
 
 
 # Loop through all areas
-for area_select in [0]:
+for area_select in [0,1,2,3,4,5]:
     # Import raw data
     data = pd.read_excel(data_path[area_select],usecols=[0,1]) #import excel sheet
 
@@ -51,11 +51,12 @@ for area_select in [0]:
         data = data.drop(np.arange(39617,44029,2.4).astype(int)) # fixes net influx error on 6/10/22, removing some data between 9:00-15:00
 
 
-    # Occupancy for any time-span 
+    # Set up for Occupancy Counting
     data = data.set_index([time]) # set index to be time (DateTime), not in terms of order (1,2,3,4, etc)
     data = data.reset_index() # resets index (becomes 1,2,3,4,etc) (setting then resetting index ensures continuous indices)
     data.rename(columns = {entry_exit:'Counter'}, inplace= True)
 
+    # Count entries and exits
     # Correct for Systematic Error (using daily minimums as reference, daily minimums should be close to 0)
     for i in range(0,len(data)):
         if i == 0: # if first data point, counter is just the +/-1 from 0 (initial counter)
